@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My ETF portfolio</title>
+<style>
+  :root {
+    --bg: #f7f6f2; --panel: #ffffff; --fg: #1f1e1c; --muted: #6b6862; --line: #e4e1da;
+    --accent: #2f6db5; --accent2: #c2662d; --ok: #2e7d4f; --bad: #b3372f; --grid: #ecebe6; --ref: #9a968e;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1b1a; --panel: #242422; --fg: #ecebe7; --muted: #a29f98; --line: #36352f;
+      --accent: #6aa3e8; --accent2: #e3935b; --ok: #6cc28f; --bad: #ec7a70; --grid: #302f2b; --ref: #7d7a73;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.45; }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2rem; margin: 0; }
+  h2 { font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .take { margin: 6px 0 0; color: var(--muted); }
+  .take b { color: var(--fg); font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; min-width: 0; }
+  .label { font-size: 0.8rem; color: var(--muted); margin: 0; }
+  .big { display: block; font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; margin: 4px 0; font-variant-numeric: tabular-nums; }
+  .big.sm { font-size: 1.15rem; line-height: 1.9; }
+  .sub { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .note { font-size: 0.8rem; color: var(--muted); margin: 4px 0 14px; }
+  .pos { color: var(--ok); } .neg { color: var(--bad); }
+  .chart { position: relative; min-height: 240px; }
+  .chart svg { display: block; width: 100%; overflow: visible; }
+  .chart text { fill: var(--muted); font-size: 12px; }
+  .chart .end { fill: var(--fg); font-weight: 600; }
+  .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); padding: 6px 10px; font-size: 0.8rem; white-space: nowrap; display: none; font-variant-numeric: tabular-nums; }
+  .tip .d { color: var(--muted); margin-bottom: 2px; }
+  .tip .r { display: flex; justify-content: space-between; gap: 16px; }
+  .barwrap { position: relative; padding: 4px 0; }
+  .bar { display: flex; height: 20px; border-radius: 6px; overflow: hidden; background: var(--grid); }
+  .bar span { display: block; height: 100%; }
+  .target { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fg); }
+  .legend { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .muted { color: var(--muted); }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-size: 0.78rem; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; }
+  .num { text-align: right; }
+  @media (max-width: 640px) { .hold .hide-sm { display: none; } }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--muted); flex: 1 1 10rem; max-width: 16rem; }
+  .field input, .field select { font: inherit; font-size: 1rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 38px; width: 100%; }
+  ul.method { margin: 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  footer { font-size: 0.78rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>My ETF portfolio</h1>
+    <p class="take">Your <b id="t-invested">—</b> is now worth <b id="t-value">—</b>, <span id="t-dir">—</span> <b id="t-return">—</b> since buying on <span id="t-date">—</span>.</p>
+  </header>
+
+  <section class="tiles">
+    <div class="card"><p class="label">Value now</p><span class="big" id="k-value">—</span><span class="sub">from <span id="k-invested">—</span> invested</span></div>
+    <div class="card"><p class="label">Gain since you bought</p><span class="big" id="k-gain">—</span><span class="sub"><span id="k-return">—</span> return</span></div>
+    <div class="card"><p class="label">Since the previous close</p><span class="big" id="k-day">—</span><span class="sub"><span id="k-daypct">—</span> on the day</span></div>
+    <div class="card"><p class="label">Prices as of</p><span class="big sm" id="k-asof">—</span><span class="sub" id="k-status">—</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Value since you invested</h2>
+    <p class="note">What the two ETFs together are worth at each trading day's last price. The dashed line is what was put in.</p>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Mix now vs the plan</h2>
+      <p class="note">Each ETF's share of what the portfolio is worth today. The dark tick marks the chosen split.</p>
+      <div id="mix"></div>
+    </section>
+    <section class="card">
+      <h2>How this is worked out</h2>
+      <p class="note">Plain arithmetic on the two buys.</p>
+      <ul class="method">
+        <li>The buy price is each ETF's NZX closing price on the day of investing.</li>
+        <li>Units = amount invested ÷ buy price. Value = units × latest price.</li>
+        <li>Brokerage fees, distributions and tax aren't included.</li>
+        <li>Prices come from NZX (nzx.com), about twenty minutes delayed.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Holdings</h2>
+    <p class="note">Units are what the money bought at the buy price; return is the change in value since then.</p>
+    <div class="tablewrap">
+      <table class="hold">
+        <thead><tr>
+          <th>ETF</th><th class="hide-sm">Fund</th><th class="num">Invested</th><th class="num hide-sm">Buy price</th>
+          <th class="num hide-sm">Units</th><th class="num hide-sm">Last price</th><th class="num">Value</th><th class="num hide-sm">Gain</th><th class="num">Return</th>
+        </tr></thead>
+        <tbody id="hold-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What if you'd invested a different amount?</h2>
+    <p class="note">Enter an amount and a start date. It's split between TWF and FNZ the same way as this portfolio, bought at that day's NZX closing price and valued at the latest price.</p>
+    <div class="controls">
+      <label class="field">Amount (NZ$)<input id="c-amt" type="number" inputmode="decimal" min="0.01" step="0.01" value="100"></label>
+      <label class="field">Start date<select id="c-date"></select></label>
+    </div>
+    <p class="label">Worth now</p>
+    <span class="big" id="c-value">—</span>
+    <p class="sub" style="margin:0 0 14px"><span id="c-gain">—</span> (<span id="c-ret">—</span>) since buying on <span id="c-on">—</span>, valued at prices from <span id="c-latest">—</span>.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>ETF</th><th class="num">Put in</th><th class="num">Bought at</th><th class="num">Worth now</th><th class="num">Return</th></tr></thead>
+        <tbody id="c-rows"></tbody>
+      </table>
+    </div>
+    <p class="note" style="margin:14px 0 0">Start dates go back to <span id="c-first">—</span>, when price tracking began. Price change only: distributions and fees aren't included.</p>
+  </section>
+
+  <footer id="foot">—</footer>
+</div>
+
+<script id="pf-data" type="application/json">
+{"holdings":[{"ticker":"TWF","fund":"Smartshares Total World ETF","weight":0.8,"invested":4.8,"buy_date":"2026-10-27","buy_price":5.344},{"ticker":"FNZ","fund":"Smartshares NZ Top 50 ETF","weight":0.2,"invested":1.2,"buy_date":"2026-10-27","buy_price":3.058}],
+"prices":[{"date":"2026-10-27","ticker":"TWF","price":5.344,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-27","ticker":"FNZ","price":3.058,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-28","ticker":"TWF","price":5.407,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-28","ticker":"FNZ","price":3.074,"status":"close","as_of":"2026-10-28T17:00:00+13:00"}]}
+</script>
+<script>
+(async function () {
+  let DATA = JSON.parse(document.getElementById('pf-data').textContent);
+  let live = false;
+  try {
+    const [hr, pr] = await Promise.all([fetch('holdings.json', { cache: 'no-store' }), fetch('prices.json', { cache: 'no-store' })]);
+    if (hr.ok && pr.ok) {
+      const h = await hr.json();
+      const p = await pr.json();
+      if (Array.isArray(h) && h.length && Array.isArray(p) && p.length) { DATA = { holdings: h, prices: p }; live = true; }
+    }
+  } catch (e) { /* opened as a file: use the copy built into this page */ }
+  const holdings = DATA.holdings;
+  const prices = DATA.prices.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const $ = (id) => document.getElementById(id);
+  const nf2 = new Intl.NumberFormat('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const money = (v) => 'NZ$' + nf2.format(v);
+  const sign = (v) => (v > 0.0000001 ? '+' : v < -0.0000001 ? '−' : '');
+  const sMoney = (v) => sign(v) + 'NZ$' + nf2.format(Math.abs(v));
+  const pct = (v) => nf2.format(Math.abs(v) * 100) + '%';
+  const sPct = (v) => sign(v) + pct(v);
+  const p3 = (v) => 'NZ$' + v.toFixed(3);
+  const tone = (el, v) => { el.classList.toggle('pos', v > 0); el.classList.toggle('neg', v < 0); };
+  const dayDate = (s) => new Date(s + 'T00:00:00Z');
+  const fmtDay = (s, opts) => new Intl.DateTimeFormat('en-NZ', Object.assign({ timeZone: 'UTC' }, opts)).format(dayDate(s));
+  const longDay = (s) => fmtDay(s, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const shortDay = (s) => fmtDay(s, { day: 'numeric', month: 'short' });
+  const set = (id, text, toneVal) => { const el = $(id); el.textContent = text; if (toneVal !== undefined) tone(el, toneVal); };
+  const colors = [getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim()];
+
+  // Position in each ETF
+  const position = holdings.map((h) => {
+    const mine = prices.filter((p) => p.ticker === h.ticker);
+    const last = mine[mine.length - 1];
+    const prev = mine.length > 1 ? mine[mine.length - 2] : null;
+    const units = h.invested / h.buy_price;
+    const price = last ? last.price : h.buy_price;
+    const value = units * price;
+    return { ...h, units, price, value, gain: value - h.invested, ret: value / h.invested - 1,
+      prevValue: prev ? units * prev.price : null, as_of: last ? last.as_of : null, status: last ? last.status : null };
+  });
+  const invested = position.reduce((s, r) => s + r.invested, 0);
+  const value = position.reduce((s, r) => s + r.value, 0);
+  const hasPrev = position.every((r) => r.prevValue != null);
+  const prevValue = hasPrev ? position.reduce((s, r) => s + r.prevValue, 0) : null;
+  const asOf = position.map((r) => r.as_of).filter(Boolean).sort().pop();
+  const allClose = position.every((r) => r.status === 'close');
+
+  set('t-invested', money(invested));
+  set('t-value', money(value));
+  const ret = value / invested - 1;
+  set('t-dir', ret > 0 ? 'up' : ret < 0 ? 'down' : 'changed by', ret);
+  set('t-return', pct(ret), ret);
+  set('t-date', fmtDay(holdings[0].buy_date, { weekday: 'long', day: 'numeric', month: 'long' }));
+  set('k-value', money(value));
+  set('k-invested', money(invested));
+  set('k-gain', sMoney(value - invested), value - invested);
+  set('k-return', sPct(ret), ret);
+  if (hasPrev) { set('k-day', sMoney(value - prevValue), value - prevValue); set('k-daypct', sPct(value / prevValue - 1), value / prevValue - 1); }
+  if (asOf) set('k-asof', new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(asOf)));
+  set('k-status', allClose ? 'NZX closing prices' : 'NZX prices during trading, about 20 minutes delayed');
+  const asOfText = asOf ? new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(asOf)) : '—';
+  set('foot', live
+    ? 'NZX prices as of ' + asOfText + ' (NZ time). Updates at 12:40 pm and 5:40 pm New Zealand time each weekday.'
+    : 'Snapshot of NZX prices as of ' + asOfText + ' (NZ time).');
+
+  // Holdings table
+  const tb = $('hold-rows');
+  position.forEach((r) => {
+    const tr = document.createElement('tr');
+    const cells = [
+      [r.ticker], [r.fund, 'hide-sm'], [money(r.invested), 'num'], [p3(r.buy_price), 'num hide-sm'],
+      [r.units.toFixed(4), 'num hide-sm'], [p3(r.price), 'num hide-sm'], [money(r.value), 'num'],
+      [sMoney(r.gain), 'num hide-sm', r.gain], [sPct(r.ret), 'num', r.ret],
+    ];
+    cells.forEach(([t, cls, tv]) => { const td = document.createElement('td'); td.textContent = t; if (cls) td.className = cls; if (tv !== undefined) tone(td, tv); tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+
+  // Mix
+  const mix = $('mix');
+  const wrap = document.createElement('div'); wrap.className = 'barwrap';
+  const bar = document.createElement('div'); bar.className = 'bar';
+  position.forEach((r, i) => { const s = document.createElement('span'); s.style.width = (r.value / value * 100) + '%'; s.style.background = colors[i % colors.length]; bar.appendChild(s); });
+  wrap.appendChild(bar);
+  let cum = 0;
+  position.slice(0, -1).forEach((r) => { cum += r.weight; const t = document.createElement('span'); t.className = 'target'; t.style.left = `calc(${cum * 100}% - 1px)`; wrap.appendChild(t); });
+  const legend = document.createElement('ul'); legend.className = 'legend';
+  position.forEach((r, i) => {
+    const li = document.createElement('li');
+    const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = colors[i % colors.length];
+    const a = document.createElement('span'); a.textContent = r.ticker + ' ' + (r.value / value * 100).toFixed(1) + '%';
+    const b = document.createElement('span'); b.className = 'muted'; b.textContent = 'target ' + Math.round(r.weight * 100) + '%';
+    li.append(sw, a, b); legend.appendChild(li);
+  });
+  mix.append(wrap, legend);
+
+  // Daily history
+  const dates = [...new Set(prices.map((p) => p.date))].sort();
+  const lastPx = {};
+  const history = dates.map((date) => {
+    const row = { date, parts: {} };
+    let total = 0;
+    holdings.forEach((h) => {
+      const p = prices.find((q) => q.date === date && q.ticker === h.ticker);
+      if (p) lastPx[h.ticker] = p.price;
+      const v = (h.invested / h.buy_price) * (lastPx[h.ticker] ?? h.buy_price);
+      row.parts[h.ticker] = v; total += v;
+    });
+    row.total = total;
+    return row;
+  });
+
+  // Chart
+  const chart = $('chart');
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (name, attrs, parent) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+  function drawChart() {
+    chart.replaceChildren();
+    const W = Math.max(280, chart.clientWidth || 600), H = 240;
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Portfolio value by day' }, chart);
+    const vals = history.map((r) => r.total).concat([invested]);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = Math.max((hi - lo) * 0.3, 0.03); lo -= pad; hi += pad;
+    const step = niceStep((hi - lo) / 4);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    const ticks = []; for (let v = lo; v <= hi + step / 2; v += step) ticks.push(v);
+    const fmtY = (v) => 'NZ$' + v.toFixed(step < 0.01 ? 3 : 2);
+    const measure = (s, cls) => { const t = el('text', cls ? { class: cls } : {}, svg); t.textContent = s; const w = t.getComputedTextLength(); t.remove(); return w; };
+    const left = Math.ceil(Math.max(...ticks.map((v) => measure(fmtY(v))))) + 10;
+    const lastRow = history[history.length - 1];
+    const right = Math.ceil(measure(fmtY(lastRow.total), 'end')) + 14;
+    const top = 12, bottom = H - 28, innerW = W - left - right;
+    const y = (v) => bottom - (v - lo) / (hi - lo) * (bottom - top);
+    let t0 = +dayDate(history[0].date), t1 = +dayDate(lastRow.date);
+    if (t0 === t1) { t0 -= 43200000; t1 += 43200000; }
+    const x = (s) => left + (+dayDate(s) - t0) / (t1 - t0) * innerW;
+    ticks.forEach((v) => {
+      el('line', { x1: left, x2: left + innerW, y1: y(v), y2: y(v), stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+      const t = el('text', { x: left - 8, y: y(v), dy: '0.32em', 'text-anchor': 'end' }, svg); t.textContent = fmtY(v);
+    });
+    const maxT = Math.max(2, Math.floor(innerW / 70));
+    const every = Math.ceil(history.length / maxT);
+    const xt = history.filter((r, i) => i % every === 0 || i === history.length - 1);
+    xt.forEach((r, i) => {
+      const anchor = xt.length > 1 && i === 0 ? 'start' : xt.length > 1 && i === xt.length - 1 ? 'end' : 'middle';
+      const t = el('text', { x: x(r.date), y: H - 8, 'text-anchor': anchor }, svg); t.textContent = shortDay(r.date);
+    });
+    el('line', { x1: left, x2: left + innerW, y1: y(invested), y2: y(invested), stroke: 'var(--ref)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }, svg);
+    const firstAbove = history[0].total >= invested;
+    const rl = el('text', { x: left + 10, y: firstAbove ? y(invested) + 16 : y(invested) - 8 }, svg); rl.textContent = 'Invested ' + fmtY(invested);
+    const c = colors[0];
+    if (history.length > 1) {
+      const d = history.map((r, i) => (i ? 'L' : 'M') + x(r.date) + ',' + y(r.total)).join('');
+      el('path', { d: d + `L${x(lastRow.date)},${bottom}L${x(history[0].date)},${bottom}Z`, fill: c, 'fill-opacity': 0.08 }, svg);
+      el('path', { d, fill: 'none', stroke: c, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+    }
+    if (history.length <= 40) history.forEach((r) => el('circle', { cx: x(r.date), cy: y(r.total), r: 3, fill: c }, svg));
+    const end = el('text', { class: 'end', x: x(lastRow.date) + 8, y: y(lastRow.total), dy: '0.32em' }, svg); end.textContent = fmtY(lastRow.total);
+    const dot = el('circle', { r: 5, fill: c, stroke: 'var(--panel)', 'stroke-width': 2, style: 'display:none' }, svg);
+    const tip = document.createElement('div'); tip.className = 'tip'; chart.appendChild(tip);
+    const hit = el('rect', { x: left, y: 0, width: innerW, height: H, fill: 'transparent' }, svg);
+    const show = (evt) => {
+      const rect = svg.getBoundingClientRect();
+      const scale = rect.width / W;
+      const mx = (evt.clientX - rect.left) / scale;
+      let best = history[0];
+      history.forEach((r) => { if (Math.abs(x(r.date) - mx) < Math.abs(x(best.date) - mx)) best = r; });
+      dot.setAttribute('cx', x(best.date)); dot.setAttribute('cy', y(best.total)); dot.style.display = '';
+      tip.replaceChildren();
+      const head = document.createElement('div'); head.className = 'd'; head.textContent = longDay(best.date); tip.appendChild(head);
+      const line = (k, v, strong) => { const r = document.createElement('div'); r.className = 'r'; const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = money(v); if (strong) b.style.fontWeight = '600'; r.append(a, b); tip.appendChild(r); };
+      line('Total', best.total, true);
+      holdings.forEach((h) => line(h.ticker, best.parts[h.ticker]));
+      tip.style.display = 'block';
+      const px = x(best.date) * scale, py = y(best.total) * scale;
+      let lx = px + 12; if (lx + tip.offsetWidth > chart.clientWidth) lx = px - tip.offsetWidth - 12;
+      tip.style.left = Math.max(0, lx) + 'px';
+      tip.style.top = Math.max(0, Math.min(chart.clientHeight - tip.offsetHeight, py - tip.offsetHeight / 2)) + 'px';
+    };
+    hit.addEventListener('pointermove', show);
+    hit.addEventListener('pointerdown', show);
+    hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; dot.style.display = 'none'; });
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  drawChart();
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
+
+  // What-if calculator
+  const tickers = holdings.map((h) => h.ticker);
+  const startDates = dates.filter((d) => tickers.every((t) => prices.some((p) => p.date === d && p.ticker === t)));
+  const sel = $('c-date');
+  startDates.slice().reverse().forEach((d) => sel.appendChild(new Option(longDay(d), d)));
+  sel.value = startDates[0];
+  set('c-first', fmtDay(startDates[0], { day: 'numeric', month: 'long', year: 'numeric' }));
+  const latestBy = {}; holdings.forEach((h) => { const m = prices.filter((p) => p.ticker === h.ticker); latestBy[h.ticker] = m[m.length - 1]; });
+  function calc() {
+    const amt = Number($('c-amt').value);
+    const date = sel.value;
+    const rows = $('c-rows'); rows.replaceChildren();
+    set('c-on', longDay(date));
+    set('c-latest', longDay(latestBy[tickers[0]].date));
+    if (!(amt > 0)) { ['c-value', 'c-gain', 'c-ret'].forEach((id) => set(id, '—', 0)); return; }
+    const wsum = holdings.reduce((s, h) => s + h.weight, 0);
+    let total = 0;
+    holdings.forEach((h) => {
+      const start = prices.find((p) => p.date === date && p.ticker === h.ticker).price;
+      const growth = latestBy[h.ticker].price / start;
+      const put = amt * h.weight / wsum;
+      const now = put * growth; total += now;
+      const tr = document.createElement('tr');
+      [[h.ticker], [money(put), 'num'], [p3(start), 'num'], [money(now), 'num'], [sPct(growth - 1), 'num', growth - 1]].forEach(([t, cls, tv]) => {
+        const td = document.createElement('td'); td.textContent = t; if (cls) td.className = cls; if (tv !== undefined) tone(td, tv); tr.appendChild(td);
+      });
+      rows.appendChild(tr);
+    });
+    set('c-value', money(total));
+    set('c-gain', sMoney(total - amt), total - amt);
+    set('c-ret', sPct(total / amt - 1), total / amt - 1);
+  }
+  $('c-amt').addEventListener('input', calc);
+  sel.addEventListener('change', calc);
+  calc();
+})();
+</script>
+</body>
+</html>

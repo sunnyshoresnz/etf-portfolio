@@ -1,0 +1,4 @@
+[
+  {"ticker": "TWF", "fund": "Smartshares Total World ETF", "weight": 0.8, "invested": 4.80, "buy_date": "2026-10-27", "buy_price": 5.344, "currency": "NZD"},
+  {"ticker": "FNZ", "fund": "Smartshares NZ Top 50 ETF", "weight": 0.2, "invested": 1.20, "buy_date": "2026-10-27", "buy_price": 3.058, "currency": "NZD"}
+]
