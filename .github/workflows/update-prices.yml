@@ -1,0 +1,53 @@
+name: Update NZX prices
+
+on:
+  schedule:
+    # GitHub schedules run in UTC. These cover 12:40 pm and 5:40 pm New Zealand
+    # time on weekdays in both summer (NZDT) and winter (NZST); the script works
+    # out the NZ time itself, and the extra runs re-check the price an hour later.
+    - cron: "40 23 * * 0-4"
+    - cron: "40 0 * * 1-5"
+    - cron: "40 4 * * 1-5"
+    - cron: "40 5 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-prices.yml"
+      - "scripts/update_prices.py"
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch today's prices
+        run: python3 scripts/update_prices.py
+
+      - name: Save to the repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json status.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git commit -m "Update NZX prices"
+          git push || (git pull --rebase origin main && git push)
+
+      - name: Rebuild the web page
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
