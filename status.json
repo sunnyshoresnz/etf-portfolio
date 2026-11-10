@@ -1,10 +1,10 @@
 {
-  "run_at": "2026-11-10T13:09:12+13:00",
+  "run_at": "2026-11-10T14:43:13+13:00",
   "results": {
     "TWF": {
       "nzx": {
         "price": 5.347,
-        "time": "2026-11-10T12:46+13:00"
+        "time": "2026-11-10T14:20+13:00"
       },
       "yahoo": {
         "error": "HTTPError: HTTP Error 429: Too Many Requests"
@@ -18,7 +18,7 @@
     "FNZ": {
       "nzx": {
         "price": 3.148,
-        "time": "2026-11-10T12:49+13:00"
+        "time": "2026-11-10T14:18+13:00"
       },
       "yahoo": {
         "error": "HTTPError: HTTP Error 429: Too Many Requests"
