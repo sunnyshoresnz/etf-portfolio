@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-11T18:35:00+13:00",
+  "run_at": "2026-11-11T19:31:11+13:00",
   "results": {
     "TWF": {
       "nzx": {
@@ -13,7 +13,7 @@
       "used": "nzx.com",
       "status": "close",
       "price": 5.358,
-      "note": "saved"
+      "note": "unchanged"
     },
     "FNZ": {
       "nzx": {
@@ -27,9 +27,9 @@
       "used": "nzx.com",
       "status": "close",
       "price": 3.169,
-      "note": "saved"
+      "note": "unchanged"
     }
   },
   "mode": "close",
-  "prices_changed": true
+  "prices_changed": false
 }
