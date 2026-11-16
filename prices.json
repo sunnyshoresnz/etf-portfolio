@@ -27,6 +27,6 @@
   {"date": "2026-11-12", "ticker": "TWF", "price": 5.399, "status": "close", "as_of": "2026-11-12T17:30:00+13:00", "source": "nzx.com"},
   {"date": "2026-11-13", "ticker": "FNZ", "price": 3.167, "status": "close", "as_of": "2026-11-13T17:30:00+13:00", "source": "nzx.com"},
   {"date": "2026-11-13", "ticker": "TWF", "price": 5.449, "status": "close", "as_of": "2026-11-13T17:30:00+13:00", "source": "nzx.com"},
-  {"date": "2026-11-16", "ticker": "FNZ", "price": 3.191, "status": "intraday", "as_of": "2026-11-16T13:00:00+13:00", "source": "nzx.com"},
-  {"date": "2026-11-16", "ticker": "TWF", "price": 5.451, "status": "intraday", "as_of": "2026-11-16T13:00:00+13:00", "source": "nzx.com"}
+  {"date": "2026-11-16", "ticker": "FNZ", "price": 3.185, "status": "intraday", "as_of": "2026-11-16T14:42:00+13:00", "source": "nzx.com"},
+  {"date": "2026-11-16", "ticker": "TWF", "price": 5.448, "status": "intraday", "as_of": "2026-11-16T14:39:00+13:00", "source": "nzx.com"}
 ]
