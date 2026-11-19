@@ -1,35 +1,35 @@
 {
-  "run_at": "2026-11-19T14:54:50+13:00",
+  "run_at": "2026-11-19T18:38:38+13:00",
   "results": {
     "TWF": {
       "nzx": {
-        "price": 5.319,
-        "time": "2026-11-19T14:29+13:00"
+        "price": 5.295,
+        "time": "2026-11-19T17:30+13:00"
       },
       "yahoo": {
         "error": "HTTPError: HTTP Error 429: Too Many Requests"
       },
       "attempt": 1,
       "used": "nzx.com",
-      "status": "intraday",
-      "price": 5.319,
+      "status": "close",
+      "price": 5.295,
       "note": "saved"
     },
     "FNZ": {
       "nzx": {
-        "price": 3.182,
-        "time": "2026-11-19T14:33+13:00"
+        "price": 3.186,
+        "time": "2026-11-19T17:30+13:00"
       },
       "yahoo": {
         "error": "HTTPError: HTTP Error 429: Too Many Requests"
       },
       "attempt": 1,
       "used": "nzx.com",
-      "status": "intraday",
-      "price": 3.182,
+      "status": "close",
+      "price": 3.186,
       "note": "saved"
     }
   },
-  "mode": "intraday",
+  "mode": "close",
   "prices_changed": true
 }
