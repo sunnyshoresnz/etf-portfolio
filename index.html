@@ -60,16 +60,25 @@
   .field input, .field select { font: inherit; font-size: 1rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 38px; width: 100%; }
   ul.method { margin: 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
   footer { font-size: 0.78rem; color: var(--muted); text-align: center; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>My ETF portfolio</h1>
-    <p class="take">Your <b id="t-invested">—</b> is now worth <b id="t-value">—</b>, <span id="t-dir">—</span> <b id="t-return">—</b> since buying on <span id="t-date">—</span>.</p>
+    <p class="take" id="take-open">Your <b id="t-invested">—</b> is now worth <b id="t-value">—</b>, <span id="t-dir">—</span> <b id="t-return">—</b> since buying on <span id="t-date">—</span>.</p>
+    <p class="take" id="take-closed" hidden>This <b id="x-invested">—</b> portfolio was closed on <span id="x-date">—</span>: <b id="x-withdrawn">—</b> was withdrawn, and the balance is now <b id="x-balance">—</b>.</p>
   </header>
 
-  <section class="tiles">
+  <section class="tiles" id="tiles-closed" hidden>
+    <div class="card"><p class="label">Balance now</p><span class="big" id="x-k-balance">—</span><span class="sub">from <span id="x-k-invested">—</span> invested</span></div>
+    <div class="card"><p class="label">Withdrawn</p><span class="big" id="x-k-withdrawn">—</span><span class="sub">on <span id="x-k-date">—</span></span></div>
+    <div class="card"><p class="label">Overall result</p><span class="big" id="x-k-result">—</span><span class="sub"><span id="x-k-resultpct">—</span> of what was put in</span></div>
+    <div class="card"><p class="label">Price updates</p><span class="big sm">Stopped</span><span class="sub">last NZX price <span id="x-k-asof">—</span></span></div>
+  </section>
+
+  <section class="tiles" id="tiles-open">
     <div class="card"><p class="label">Value now</p><span class="big" id="k-value">—</span><span class="sub">from <span id="k-invested">—</span> invested</span></div>
     <div class="card"><p class="label">Gain since you bought</p><span class="big" id="k-gain">—</span><span class="sub"><span id="k-return">—</span> return</span></div>
     <div class="card"><p class="label">Since the previous close</p><span class="big" id="k-day">—</span><span class="sub"><span id="k-daypct">—</span> on the day</span></div>
@@ -77,15 +86,15 @@
   </section>
 
   <section class="card">
-    <h2>Value since you invested</h2>
-    <p class="note">What the two ETFs together are worth at each trading day's last price. The dashed line is what was put in.</p>
+    <h2 id="chart-title">Value since you invested</h2>
+    <p class="note" id="chart-note">What the two ETFs together are worth at each trading day's last price. The dashed line is what was put in.</p>
     <div class="chart" id="chart"></div>
   </section>
 
   <div class="grid">
     <section class="card">
-      <h2>Mix now vs the plan</h2>
-      <p class="note">Each ETF's share of what the portfolio is worth today. The dark tick marks the chosen split.</p>
+      <h2 id="mix-title">Mix now vs the plan</h2>
+      <p class="note" id="mix-note">Each ETF's share of what the portfolio is worth today. The dark tick marks the chosen split.</p>
       <div id="mix"></div>
     </section>
     <section class="card">
@@ -96,13 +105,14 @@
         <li>Units = amount invested ÷ buy price. Value = units × latest price.</li>
         <li>Brokerage fees, distributions and tax aren't included.</li>
         <li>Prices are NZX market prices (from nzx.com, or Yahoo Finance during the trading day), about twenty minutes delayed. A price is only used once its own timestamp shows it is from that day.</li>
+        <li id="m-closed" hidden></li>
       </ul>
     </section>
   </div>
 
   <section class="card">
-    <h2>Holdings</h2>
-    <p class="note">Units are what the money bought at the buy price; return is the change in value since then.</p>
+    <h2 id="hold-title">Holdings</h2>
+    <p class="note" id="hold-note">Units are what the money bought at the buy price; return is the change in value since then.</p>
     <div class="tablewrap">
       <table class="hold">
         <thead><tr>
@@ -137,12 +147,16 @@
 </div>
 
 <script id="pf-data" type="application/json">
-{"holdings":[{"ticker":"TWF","fund":"Smartshares Total World ETF","weight":0.8,"invested":4.8,"buy_date":"2026-10-27","buy_price":5.344},{"ticker":"FNZ","fund":"Smartshares NZ Top 50 ETF","weight":0.2,"invested":1.2,"buy_date":"2026-10-27","buy_price":3.058}],
-"prices":[{"date":"2026-10-27","ticker":"TWF","price":5.344,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-27","ticker":"FNZ","price":3.058,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-28","ticker":"TWF","price":5.407,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-28","ticker":"FNZ","price":3.074,"status":"close","as_of":"2026-10-28T17:00:00+13:00"}]}
+{"holdings":[{"ticker":"TWF","fund":"Smartshares Total World ETF","weight":0.8,"invested":4.8,"buy_date":"2026-10-27","buy_price":5.344},{"ticker":"FNZ","fund":"Smartshares NZ Top 50 ETF","weight":0.2,"invested":1.2,"buy_date":"2026-10-27","buy_price":3.058}],"prices":[{"date":"2026-10-27","ticker":"FNZ","price":3.058,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-27","ticker":"TWF","price":5.344,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-28","ticker":"FNZ","price":3.074,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-28","ticker":"TWF","price":5.407,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-29","ticker":"FNZ","price":3.07,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-29","ticker":"TWF","price":5.415,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-30","ticker":"FNZ","price":3.091,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-10-30","ticker":"TWF","price":5.322,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-11-02","ticker":"FNZ","price":3.088,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-02","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-03","ticker":"FNZ","price":3.087,"status":"close","as_of":"2026-11-03T18:00:00+13:00"},{"date":"2026-11-03","ticker":"TWF","price":5.353,"status":"close","as_of":"2026-11-03T17:30:00+13:00"},{"date":"2026-11-04","ticker":"FNZ","price":3.102,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-04","ticker":"TWF","price":5.325,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-05","ticker":"FNZ","price":3.164,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-05","ticker":"TWF","price":5.41,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-06","ticker":"FNZ","price":3.131,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-06","ticker":"TWF","price":5.284,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-09","ticker":"FNZ","price":3.115,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-09","ticker":"TWF","price":5.3,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-10","ticker":"FNZ","price":3.162,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-10","ticker":"TWF","price":5.33,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-11","ticker":"FNZ","price":3.169,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-11","ticker":"TWF","price":5.358,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-12","ticker":"FNZ","price":3.198,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-12","ticker":"TWF","price":5.399,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-13","ticker":"FNZ","price":3.167,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-13","ticker":"TWF","price":5.449,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-16","ticker":"FNZ","price":3.211,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-16","ticker":"TWF","price":5.444,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-17","ticker":"FNZ","price":3.217,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-17","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-18","ticker":"FNZ","price":3.19,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-18","ticker":"TWF","price":5.332,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-19","ticker":"FNZ","price":3.186,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-19","ticker":"TWF","price":5.295,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-20","ticker":"FNZ","price":3.163,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"},{"date":"2026-11-20","ticker":"TWF","price":5.195,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"}],"withdrawals":[{"date":"2026-11-20","amount":5.0,"closes_position":true,"note":"All units sold and NZ$5.00 withdrawn"}]}
 </script>
 <script>
 (async function () {
   let DATA = JSON.parse(document.getElementById('pf-data').textContent);
+  let withdrawals = Array.isArray(DATA.withdrawals) ? DATA.withdrawals : [];
+  try {
+    const wr = await fetch('withdrawals.json', { cache: 'no-store' });
+    if (wr.ok) { const w = await wr.json(); if (Array.isArray(w)) withdrawals = w; }
+  } catch (e) { /* opened as a file: use the copy built into this page */ }
   let live = false;
   try {
     const [hr, pr] = await Promise.all([fetch('holdings.json', { cache: 'no-store' }), fetch('prices.json', { cache: 'no-store' })]);
@@ -206,6 +220,37 @@
     ? 'NZX prices as of ' + asOfText + ' (NZ time). Updates at 12:40 pm and 5:40 pm New Zealand time each weekday.'
     : 'Snapshot of NZX prices as of ' + asOfText + ' (NZ time).');
 
+  // Withdrawal that closed the portfolio
+  const withdrawn = withdrawals.reduce((s, w) => s + Number(w.amount || 0), 0);
+  const closing = withdrawals.filter((w) => w.closes_position).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).pop();
+  const closed = !!closing;
+  if (closed) {
+    const balance = 0;
+    const result = withdrawn + balance - invested;
+    $('take-open').hidden = true; $('take-closed').hidden = false;
+    $('tiles-open').hidden = true; $('tiles-closed').hidden = false;
+    set('x-invested', money(invested));
+    set('x-date', fmtDay(closing.date, { weekday: 'long', day: 'numeric', month: 'long' }));
+    set('x-withdrawn', money(withdrawn));
+    set('x-balance', money(balance));
+    set('x-k-balance', money(balance));
+    set('x-k-invested', money(invested));
+    set('x-k-withdrawn', money(withdrawn));
+    set('x-k-date', longDay(closing.date));
+    set('x-k-result', sMoney(result), result);
+    set('x-k-resultpct', sPct(result / invested), result);
+    set('x-k-asof', asOf ? new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(asOf)) : '—');
+    set('chart-title', 'Value while invested');
+    set('chart-note', "What the two ETFs together were worth at each trading day's last price, until " + money(withdrawn) + ' was withdrawn and the balance went to ' + money(balance) + '. The dashed line is what was put in.');
+    set('mix-title', 'Mix before the withdrawal');
+    set('mix-note', "Each ETF's share of the portfolio at the last price before the withdrawal. The dark tick marks the chosen split.");
+    set('hold-title', 'Holdings before the withdrawal');
+    set('hold-note', 'What the money bought, valued at the last price before the units were sold on ' + longDay(closing.date) + '.');
+    const mc = $('m-closed'); mc.hidden = false;
+    mc.textContent = 'On ' + longDay(closing.date) + ' the units were sold and ' + money(withdrawn) + ' was withdrawn, so the balance is ' + money(balance) + '. Price updates stopped then.';
+    set('foot', 'Price updates stopped on ' + fmtDay(closing.date, { day: 'numeric', month: 'long', year: 'numeric' }) + '. Last NZX prices from ' + asOfText + ' (NZ time).');
+  }
+
   // Holdings table
   const tb = $('hold-rows');
   position.forEach((r) => {
@@ -250,8 +295,15 @@
       row.parts[h.ticker] = v; total += v;
     });
     row.total = total;
+    row.ts = +dayDate(date);
     return row;
   });
+  if (closed && history.length) {
+    const lastPriceRow = history[history.length - 1];
+    const ts = +dayDate(closing.date) + (closing.date <= lastPriceRow.date ? 16 * 3600000 : 0);
+    history.push({ date: closing.date, ts: Math.max(ts, lastPriceRow.ts + 16 * 3600000), total: 0,
+      parts: Object.fromEntries(holdings.map((h) => [h.ticker, 0])), withdrawal: true });
+  }
 
   // Chart
   const chart = $('chart');
@@ -264,6 +316,7 @@
     const vals = history.map((r) => r.total).concat([invested]);
     let lo = Math.min(...vals), hi = Math.max(...vals);
     const pad = Math.max((hi - lo) * 0.3, 0.03); lo -= pad; hi += pad;
+    if (Math.min(...vals) >= 0) lo = Math.max(lo, 0);
     const step = niceStep((hi - lo) / 4);
     lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
     const ticks = []; for (let v = lo; v <= hi + step / 2; v += step) ticks.push(v);
@@ -274,16 +327,22 @@
     const right = Math.ceil(measure(fmtY(lastRow.total), 'end')) + 14;
     const top = 12, bottom = H - 28, innerW = W - left - right;
     const y = (v) => bottom - (v - lo) / (hi - lo) * (bottom - top);
-    let t0 = +dayDate(history[0].date), t1 = +dayDate(lastRow.date);
+    let t0 = history[0].ts, t1 = lastRow.ts;
     if (t0 === t1) { t0 -= 43200000; t1 += 43200000; }
     const x = (s) => left + (+dayDate(s) - t0) / (t1 - t0) * innerW;
+    const X = (r) => left + (r.ts - t0) / (t1 - t0) * innerW;
+    const priceRows = history.filter((r) => !r.withdrawal);
     ticks.forEach((v) => {
       el('line', { x1: left, x2: left + innerW, y1: y(v), y2: y(v), stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
       const t = el('text', { x: left - 8, y: y(v), dy: '0.32em', 'text-anchor': 'end' }, svg); t.textContent = fmtY(v);
     });
     const maxT = Math.max(2, Math.floor(innerW / 70));
-    const every = Math.ceil(history.length / maxT);
-    const xt = history.filter((r, i) => i % every === 0 || i === history.length - 1);
+    const every = Math.ceil(priceRows.length / maxT);
+    const xt = priceRows.filter((r, i) => i % every === 0 || i === priceRows.length - 1);
+    if (xt.length > 2) {
+      const lastI = priceRows.indexOf(xt[xt.length - 1]), prevI = priceRows.indexOf(xt[xt.length - 2]);
+      if (lastI - prevI < every * 0.6) xt.splice(xt.length - 2, 1);
+    }
     xt.forEach((r, i) => {
       const anchor = xt.length > 1 && i === 0 ? 'start' : xt.length > 1 && i === xt.length - 1 ? 'end' : 'middle';
       const t = el('text', { x: x(r.date), y: H - 8, 'text-anchor': anchor }, svg); t.textContent = shortDay(r.date);
@@ -293,12 +352,16 @@
     const rl = el('text', { x: left + 10, y: firstAbove ? y(invested) + 16 : y(invested) - 8 }, svg); rl.textContent = 'Invested ' + fmtY(invested);
     const c = colors[0];
     if (history.length > 1) {
-      const d = history.map((r, i) => (i ? 'L' : 'M') + x(r.date) + ',' + y(r.total)).join('');
-      el('path', { d: d + `L${x(lastRow.date)},${bottom}L${x(history[0].date)},${bottom}Z`, fill: c, 'fill-opacity': 0.08 }, svg);
+      const d = history.map((r, i) => (i ? 'L' : 'M') + X(r) + ',' + y(r.total)).join('');
+      el('path', { d: d + `L${X(lastRow)},${bottom}L${X(history[0])},${bottom}Z`, fill: c, 'fill-opacity': 0.08 }, svg);
       el('path', { d, fill: 'none', stroke: c, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
     }
-    if (history.length <= 40) history.forEach((r) => el('circle', { cx: x(r.date), cy: y(r.total), r: 3, fill: c }, svg));
-    const end = el('text', { class: 'end', x: x(lastRow.date) + 8, y: y(lastRow.total), dy: '0.32em' }, svg); end.textContent = fmtY(lastRow.total);
+    if (history.length <= 40) history.forEach((r) => el('circle', { cx: X(r), cy: y(r.total), r: 3, fill: c }, svg));
+    const end = el('text', { class: 'end', x: X(lastRow) + 8, y: y(lastRow.total), dy: '0.32em' }, svg); end.textContent = fmtY(lastRow.total);
+    if (lastRow.withdrawal) {
+      const wl = el('text', { class: 'end', x: X(lastRow) - 10, y: y(0) - 10, 'text-anchor': 'end' }, svg);
+      wl.textContent = money(withdrawn) + ' withdrawn';
+    }
     const dot = el('circle', { r: 5, fill: c, stroke: 'var(--panel)', 'stroke-width': 2, style: 'display:none' }, svg);
     const tip = document.createElement('div'); tip.className = 'tip'; chart.appendChild(tip);
     const hit = el('rect', { x: left, y: 0, width: innerW, height: H, fill: 'transparent' }, svg);
@@ -307,15 +370,20 @@
       const scale = rect.width / W;
       const mx = (evt.clientX - rect.left) / scale;
       let best = history[0];
-      history.forEach((r) => { if (Math.abs(x(r.date) - mx) < Math.abs(x(best.date) - mx)) best = r; });
-      dot.setAttribute('cx', x(best.date)); dot.setAttribute('cy', y(best.total)); dot.style.display = '';
+      history.forEach((r) => { if (Math.abs(X(r) - mx) < Math.abs(X(best) - mx)) best = r; });
+      dot.setAttribute('cx', X(best)); dot.setAttribute('cy', y(best.total)); dot.style.display = '';
       tip.replaceChildren();
-      const head = document.createElement('div'); head.className = 'd'; head.textContent = longDay(best.date); tip.appendChild(head);
+      const head = document.createElement('div'); head.className = 'd'; head.textContent = longDay(best.date) + (best.withdrawal ? ' · withdrawal' : ''); tip.appendChild(head);
       const line = (k, v, strong) => { const r = document.createElement('div'); r.className = 'r'; const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = money(v); if (strong) b.style.fontWeight = '600'; r.append(a, b); tip.appendChild(r); };
-      line('Total', best.total, true);
-      holdings.forEach((h) => line(h.ticker, best.parts[h.ticker]));
+      if (best.withdrawal) {
+        line('Withdrawn', withdrawn, true);
+        line('Balance', best.total);
+      } else {
+        line('Total', best.total, true);
+        holdings.forEach((h) => line(h.ticker, best.parts[h.ticker]));
+      }
       tip.style.display = 'block';
-      const px = x(best.date) * scale, py = y(best.total) * scale;
+      const px = X(best) * scale, py = y(best.total) * scale;
       let lx = px + 12; if (lx + tip.offsetWidth > chart.clientWidth) lx = px - tip.offsetWidth - 12;
       tip.style.left = Math.max(0, lx) + 'px';
       tip.style.top = Math.max(0, Math.min(chart.clientHeight - tip.offsetHeight, py - tip.offsetHeight / 2)) + 'px';
