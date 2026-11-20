@@ -1,3 +1,3 @@
 [
-  {"date": "2026-11-20", "amount": 5.0, "closes_position": true, "note": "All units sold and NZ$5.00 withdrawn"}
+  {"date": "2026-11-20", "sale_value": 5.91, "fee": 0.91, "amount": 5.0, "closes_position": true, "note": "All units sold for NZ$5.91 (value at the last NZX price); NZ$0.91 withdrawal fee; NZ$5.00 withdrawn"}
 ]

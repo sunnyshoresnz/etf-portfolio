@@ -68,13 +68,14 @@
   <header>
     <h1>My ETF portfolio</h1>
     <p class="take" id="take-open">Your <b id="t-invested">—</b> is now worth <b id="t-value">—</b>, <span id="t-dir">—</span> <b id="t-return">—</b> since buying on <span id="t-date">—</span>.</p>
-    <p class="take" id="take-closed" hidden>This <b id="x-invested">—</b> portfolio was closed on <span id="x-date">—</span>: <b id="x-withdrawn">—</b> was withdrawn, and the balance is now <b id="x-balance">—</b>.</p>
+    <p class="take" id="take-closed" hidden>This <b id="x-invested">—</b> portfolio was closed on <span id="x-date">—</span>. It was worth <b id="x-sale">—</b> at the last price; after a <b id="x-fee">—</b> withdrawal fee, <b id="x-withdrawn">—</b> was withdrawn and the balance is now <b id="x-balance">—</b>.</p>
   </header>
 
   <section class="tiles" id="tiles-closed" hidden>
     <div class="card"><p class="label">Balance now</p><span class="big" id="x-k-balance">—</span><span class="sub">from <span id="x-k-invested">—</span> invested</span></div>
     <div class="card"><p class="label">Withdrawn</p><span class="big" id="x-k-withdrawn">—</span><span class="sub">on <span id="x-k-date">—</span></span></div>
-    <div class="card"><p class="label">Overall result</p><span class="big" id="x-k-result">—</span><span class="sub"><span id="x-k-resultpct">—</span> of what was put in</span></div>
+    <div class="card"><p class="label">Withdrawal fee</p><span class="big" id="x-k-fee">—</span><span class="sub">from <span id="x-k-sale">—</span> when sold</span></div>
+    <div class="card"><p class="label">Overall result</p><span class="big" id="x-k-result">—</span><span class="sub"><span id="x-k-resultpct">—</span>: prices <span id="x-k-pricechg">—</span>, fee <span id="x-k-feechg">—</span></span></div>
     <div class="card"><p class="label">Price updates</p><span class="big sm">Stopped</span><span class="sub">last NZX price <span id="x-k-asof">—</span></span></div>
   </section>
 
@@ -103,7 +104,7 @@
       <ul class="method">
         <li>The buy price is each ETF's NZX closing price on the day of investing.</li>
         <li>Units = amount invested ÷ buy price. Value = units × latest price.</li>
-        <li>Brokerage fees, distributions and tax aren't included.</li>
+        <li id="m-fees">Brokerage fees, distributions and tax aren't included.</li>
         <li>Prices are NZX market prices (from nzx.com, or Yahoo Finance during the trading day), about twenty minutes delayed. A price is only used once its own timestamp shows it is from that day.</li>
         <li id="m-closed" hidden></li>
       </ul>
@@ -147,7 +148,7 @@
 </div>
 
 <script id="pf-data" type="application/json">
-{"holdings":[{"ticker":"TWF","fund":"Smartshares Total World ETF","weight":0.8,"invested":4.8,"buy_date":"2026-10-27","buy_price":5.344},{"ticker":"FNZ","fund":"Smartshares NZ Top 50 ETF","weight":0.2,"invested":1.2,"buy_date":"2026-10-27","buy_price":3.058}],"prices":[{"date":"2026-10-27","ticker":"FNZ","price":3.058,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-27","ticker":"TWF","price":5.344,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-28","ticker":"FNZ","price":3.074,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-28","ticker":"TWF","price":5.407,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-29","ticker":"FNZ","price":3.07,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-29","ticker":"TWF","price":5.415,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-30","ticker":"FNZ","price":3.091,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-10-30","ticker":"TWF","price":5.322,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-11-02","ticker":"FNZ","price":3.088,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-02","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-03","ticker":"FNZ","price":3.087,"status":"close","as_of":"2026-11-03T18:00:00+13:00"},{"date":"2026-11-03","ticker":"TWF","price":5.353,"status":"close","as_of":"2026-11-03T17:30:00+13:00"},{"date":"2026-11-04","ticker":"FNZ","price":3.102,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-04","ticker":"TWF","price":5.325,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-05","ticker":"FNZ","price":3.164,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-05","ticker":"TWF","price":5.41,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-06","ticker":"FNZ","price":3.131,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-06","ticker":"TWF","price":5.284,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-09","ticker":"FNZ","price":3.115,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-09","ticker":"TWF","price":5.3,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-10","ticker":"FNZ","price":3.162,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-10","ticker":"TWF","price":5.33,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-11","ticker":"FNZ","price":3.169,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-11","ticker":"TWF","price":5.358,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-12","ticker":"FNZ","price":3.198,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-12","ticker":"TWF","price":5.399,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-13","ticker":"FNZ","price":3.167,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-13","ticker":"TWF","price":5.449,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-16","ticker":"FNZ","price":3.211,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-16","ticker":"TWF","price":5.444,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-17","ticker":"FNZ","price":3.217,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-17","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-18","ticker":"FNZ","price":3.19,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-18","ticker":"TWF","price":5.332,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-19","ticker":"FNZ","price":3.186,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-19","ticker":"TWF","price":5.295,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-20","ticker":"FNZ","price":3.163,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"},{"date":"2026-11-20","ticker":"TWF","price":5.195,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"}],"withdrawals":[{"date":"2026-11-20","amount":5.0,"closes_position":true,"note":"All units sold and NZ$5.00 withdrawn"}]}
+{"holdings":[{"ticker":"TWF","fund":"Smartshares Total World ETF","weight":0.8,"invested":4.8,"buy_date":"2026-10-27","buy_price":5.344},{"ticker":"FNZ","fund":"Smartshares NZ Top 50 ETF","weight":0.2,"invested":1.2,"buy_date":"2026-10-27","buy_price":3.058}],"prices":[{"date":"2026-10-27","ticker":"FNZ","price":3.058,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-27","ticker":"TWF","price":5.344,"status":"close","as_of":"2026-10-27T17:00:00+13:00"},{"date":"2026-10-28","ticker":"FNZ","price":3.074,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-28","ticker":"TWF","price":5.407,"status":"close","as_of":"2026-10-28T17:00:00+13:00"},{"date":"2026-10-29","ticker":"FNZ","price":3.07,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-29","ticker":"TWF","price":5.415,"status":"close","as_of":"2026-10-29T17:30:00+13:00"},{"date":"2026-10-30","ticker":"FNZ","price":3.091,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-10-30","ticker":"TWF","price":5.322,"status":"close","as_of":"2026-10-30T17:30:00+13:00"},{"date":"2026-11-02","ticker":"FNZ","price":3.088,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-02","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-02T17:30:00+13:00"},{"date":"2026-11-03","ticker":"FNZ","price":3.087,"status":"close","as_of":"2026-11-03T18:00:00+13:00"},{"date":"2026-11-03","ticker":"TWF","price":5.353,"status":"close","as_of":"2026-11-03T17:30:00+13:00"},{"date":"2026-11-04","ticker":"FNZ","price":3.102,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-04","ticker":"TWF","price":5.325,"status":"close","as_of":"2026-11-04T17:30:00+13:00"},{"date":"2026-11-05","ticker":"FNZ","price":3.164,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-05","ticker":"TWF","price":5.41,"status":"close","as_of":"2026-11-05T17:30:00+13:00"},{"date":"2026-11-06","ticker":"FNZ","price":3.131,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-06","ticker":"TWF","price":5.284,"status":"close","as_of":"2026-11-06T17:30:00+13:00"},{"date":"2026-11-09","ticker":"FNZ","price":3.115,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-09","ticker":"TWF","price":5.3,"status":"close","as_of":"2026-11-09T17:30:00+13:00"},{"date":"2026-11-10","ticker":"FNZ","price":3.162,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-10","ticker":"TWF","price":5.33,"status":"close","as_of":"2026-11-10T17:30:00+13:00"},{"date":"2026-11-11","ticker":"FNZ","price":3.169,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-11","ticker":"TWF","price":5.358,"status":"close","as_of":"2026-11-11T17:30:00+13:00"},{"date":"2026-11-12","ticker":"FNZ","price":3.198,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-12","ticker":"TWF","price":5.399,"status":"close","as_of":"2026-11-12T17:30:00+13:00"},{"date":"2026-11-13","ticker":"FNZ","price":3.167,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-13","ticker":"TWF","price":5.449,"status":"close","as_of":"2026-11-13T17:30:00+13:00"},{"date":"2026-11-16","ticker":"FNZ","price":3.211,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-16","ticker":"TWF","price":5.444,"status":"close","as_of":"2026-11-16T17:30:00+13:00"},{"date":"2026-11-17","ticker":"FNZ","price":3.217,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-17","ticker":"TWF","price":5.35,"status":"close","as_of":"2026-11-17T17:30:00+13:00"},{"date":"2026-11-18","ticker":"FNZ","price":3.19,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-18","ticker":"TWF","price":5.332,"status":"close","as_of":"2026-11-18T17:30:00+13:00"},{"date":"2026-11-19","ticker":"FNZ","price":3.186,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-19","ticker":"TWF","price":5.295,"status":"close","as_of":"2026-11-19T17:30:00+13:00"},{"date":"2026-11-20","ticker":"FNZ","price":3.163,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"},{"date":"2026-11-20","ticker":"TWF","price":5.195,"status":"intraday","as_of":"2026-11-20T14:30:00+13:00"}],"withdrawals":[{"date":"2026-11-20","sale_value":5.91,"fee":0.91,"amount":5.0,"closes_position":true,"note":"All units sold for NZ$5.91 (value at the last NZX price); NZ$0.91 withdrawal fee; NZ$5.00 withdrawn"}]}
 </script>
 <script>
 (async function () {
@@ -224,30 +225,40 @@
   const withdrawn = withdrawals.reduce((s, w) => s + Number(w.amount || 0), 0);
   const closing = withdrawals.filter((w) => w.closes_position).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).pop();
   const closed = !!closing;
+  const fee = withdrawals.reduce((s, w) => s + Number(w.fee || 0), 0);
+  const saleValue = closing && closing.sale_value != null ? Number(closing.sale_value) : withdrawn + fee;
   if (closed) {
     const balance = 0;
     const result = withdrawn + balance - invested;
+    const priceChange = saleValue - invested;
     $('take-open').hidden = true; $('take-closed').hidden = false;
     $('tiles-open').hidden = true; $('tiles-closed').hidden = false;
     set('x-invested', money(invested));
     set('x-date', fmtDay(closing.date, { weekday: 'long', day: 'numeric', month: 'long' }));
+    set('x-sale', money(saleValue));
+    set('x-fee', money(fee));
     set('x-withdrawn', money(withdrawn));
     set('x-balance', money(balance));
     set('x-k-balance', money(balance));
     set('x-k-invested', money(invested));
     set('x-k-withdrawn', money(withdrawn));
     set('x-k-date', longDay(closing.date));
+    set('x-k-fee', sMoney(-fee), -fee);
+    set('x-k-sale', money(saleValue));
     set('x-k-result', sMoney(result), result);
     set('x-k-resultpct', sPct(result / invested), result);
+    set('x-k-pricechg', sMoney(priceChange));
+    set('x-k-feechg', sMoney(-fee));
+    set('m-fees', 'Apart from the withdrawal fee, brokerage fees, distributions and tax aren\'t included.');
     set('x-k-asof', asOf ? new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(asOf)) : '—');
     set('chart-title', 'Value while invested');
-    set('chart-note', "What the two ETFs together were worth at each trading day's last price, until " + money(withdrawn) + ' was withdrawn and the balance went to ' + money(balance) + '. The dashed line is what was put in.');
+    set('chart-note', "What the two ETFs together were worth at each trading day's last price, until they were sold for " + money(saleValue) + ': a ' + money(fee) + ' withdrawal fee came off, ' + money(withdrawn) + ' was withdrawn and the balance went to ' + money(balance) + '. The dashed line is what was put in.');
     set('mix-title', 'Mix before the withdrawal');
     set('mix-note', "Each ETF's share of the portfolio at the last price before the withdrawal. The dark tick marks the chosen split.");
     set('hold-title', 'Holdings before the withdrawal');
     set('hold-note', 'What the money bought, valued at the last price before the units were sold on ' + longDay(closing.date) + '.');
     const mc = $('m-closed'); mc.hidden = false;
-    mc.textContent = 'On ' + longDay(closing.date) + ' the units were sold and ' + money(withdrawn) + ' was withdrawn, so the balance is ' + money(balance) + '. Price updates stopped then.';
+    mc.textContent = 'On ' + longDay(closing.date) + ' the units were sold for ' + money(saleValue) + ', their value at the last NZX price. A ' + money(fee) + ' withdrawal fee was taken and ' + money(withdrawn) + ' was withdrawn, so the balance is ' + money(balance) + '. Price updates stopped then.';
     set('foot', 'Price updates stopped on ' + fmtDay(closing.date, { day: 'numeric', month: 'long', year: 'numeric' }) + '. Last NZX prices from ' + asOfText + ' (NZ time).');
   }
 
@@ -374,8 +385,10 @@
       dot.setAttribute('cx', X(best)); dot.setAttribute('cy', y(best.total)); dot.style.display = '';
       tip.replaceChildren();
       const head = document.createElement('div'); head.className = 'd'; head.textContent = longDay(best.date) + (best.withdrawal ? ' · withdrawal' : ''); tip.appendChild(head);
-      const line = (k, v, strong) => { const r = document.createElement('div'); r.className = 'r'; const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = money(v); if (strong) b.style.fontWeight = '600'; r.append(a, b); tip.appendChild(r); };
+      const line = (k, v, strong) => { const r = document.createElement('div'); r.className = 'r'; const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = v < 0 ? sMoney(v) : money(v); if (strong) b.style.fontWeight = '600'; r.append(a, b); tip.appendChild(r); };
       if (best.withdrawal) {
+        line('Sold for', saleValue);
+        line('Withdrawal fee', -fee);
         line('Withdrawn', withdrawn, true);
         line('Balance', best.total);
       } else {
